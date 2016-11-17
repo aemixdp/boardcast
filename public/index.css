@@ -1,0 +1,185 @@
+hr {
+    border: 0;
+    height: 1px;
+    background-color: #600000;
+}
+
+a {
+    text-decoration: none;
+}
+
+input {
+    text-align: center;
+}
+
+#content {
+    width: 960px;
+    margin: auto;
+    border: 1px solid #600000;
+    background-color: #FFFFEE;
+}
+
+#content > header {
+    text-align: center;
+    color: #789922;
+    margin-top: 0.5em;
+}
+
+#group-name {
+    text-transform: uppercase;
+}
+
+#thread-url {
+    text-transform: lowercase;
+}
+
+#group-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#group-name {
+    margin-right: 5px;
+}
+
+#groups > * {
+    margin: 2px;
+}
+
+#thread-menu > footer {
+    text-align: center;
+}
+
+#threads {
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.thread {
+    display: flex;
+    margin-top: 3px;
+    margin-bottom: 3px;
+    background-color: #e6e6e6;
+    border: 1px solid #DDCCC5;
+}
+
+.thread.active {
+    background-color: #f6e4d5;
+}
+
+.thread.success {
+    background-color: #daedab;
+}
+
+.thread.failure {
+    background-color: #F0E0D6;
+}
+
+.lhs {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    line-height: 1.2em;
+}
+
+.stats {
+    margin-left: 26px;
+    color: #b48e7e;
+}
+
+.rhs {
+    width: 360px;
+    display: flex;
+    align-items: center;
+}
+
+.rhs > *:not(:last-child) {
+    margin-right: 5px;
+}
+
+#threads li input[type="checkbox"] {
+    margin-top: 6px;
+    margin-right: 5px;
+}
+
+#thread-url {
+    width: 500px;
+}
+
+.captcha-image-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 221px;
+    height: 91px;
+}
+
+.captcha-image {
+    max-width: 221px;
+}
+
+.captcha-input-controls {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.captcha-input-controls > * {
+    width: 100px;
+    box-sizing: border-box;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+.thread-remove-button {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px dotted #FF9D00;
+    color: #FF9D00;
+}
+
+.thread-remove-button:hover {
+    border-left: 1px dotted red;
+    color: red;
+    cursor: pointer;
+}
+
+.thread-hover {
+    border: 1px dotted red;
+}
+
+#post-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+#post-menu > * {
+    margin-bottom: 0.5em;
+}
+
+#file-controls input {
+    display: none;
+}
+
+#file-controls img {
+    width: 90px;
+    height: 90px;
+}
+
+#file-controls img:hover {
+    cursor: pointer;
+}
+
+#file-controls img:not([src=""]) {
+    cursor: move;
+}

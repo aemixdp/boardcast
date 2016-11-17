@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Boardcast</title>
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script id="thread-template" type="text/html">
+        <li class="thread active">
+            <section class="lhs">
+                <div>
+                    <input type="checkbox" onclick="toggleThreadActive('{{url}}')" checked>
+                    <a href="{{url}}">{{url}}</a>
+                    <div class="stats">{{lastPostTime}} ( {{postCount}} )</div>
+                </div>
+            </section>
+            <section class="rhs">
+                <div class="captcha-image-container">
+                    <img class="captcha-image">
+                </div>
+                <div class="captcha-input-controls">
+                    <input class="captcha" type="text" disabled="true">
+                    <button onclick="submitCaptcha('{{url}}')" disabled="true">SUBMIT</button>
+                </div>
+                <div class="thread-remove-button" onclick="removeThread('{{url}}')">✖</div>
+            </section>
+        </li>
+    </script>
+</head>
+<body>
+    <div id="content">
+        <header>&gt; BOARDCAST</header>
+        <hr>
+        <nav id="group-menu">
+            <span id="groups"></span>
+            <input id="group-name" type="text" placeholder="GROUP NAME">
+            <a href="#" onclick="createGroup()">+</a>
+        </nav>
+        <hr>
+        <section id="thread-menu">
+            <ul id="threads"></ul>
+            <footer>
+                <input id="thread-url" type="text" placeholder="http://thread.url">
+                <a href="#" onclick="createThread()">+</a>
+            </footer>
+        </section>
+        <hr>
+        <section id="post-menu">
+            <textarea id="post-message" rows="10" cols="50"></textarea>
+            <div id="file-controls">
+                <input type="file" onchange="fileSelected(this)">
+                <img id="img0" src="" data-index="0" onclick="selectFile()" draggable="false">
+                <img id="img1" src="" data-index="1" onclick="selectFile()" draggable="false">
+                <img id="img2" src="" data-index="2" onclick="selectFile()" draggable="false">
+                <img id="img3" src="" data-index="3" onclick="selectFile()" draggable="false">
+            </div>
+            <button id="submit" onclick="submit()">SUBMIT</button>
+        </section>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
