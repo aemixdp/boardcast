@@ -1,3 +1,4 @@
+const random_ua = require('random-ua');
 const crypto = require('crypto');
 const mime = require('mime');
 const fs = require('fs');
@@ -140,6 +141,7 @@ app.post('/submit', upload.array('files'), guard(async (req, res) => {
     let threads = JSON.parse(req.body.threads);
     for (let url of threads) {
         let page = await phantom.createPage();
+        await page.setting('userAgent', random_ua.generate());
         if (await page.open(url) == 'fail') continue;
         await page.injectJs('./integrations/common-frontend.js');
         await page.injectJs(`./integrations/${BoardName.fromUrl(url)}-frontend.js`);

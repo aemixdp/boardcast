@@ -21,6 +21,7 @@
     "moment": "^2.16.0",
     "moment-timezone": "^0.5.9",
     "multer": "^1.2.0",
-    "phantom": "^3.0.2"
+    "phantom": "^3.0.2",
+    "random-ua": "0.0.6"
   }
 }
