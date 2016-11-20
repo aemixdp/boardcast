@@ -63,6 +63,7 @@ function selectGroup (name) {
         $postMessage.val('');
         $fileControls.find('input').val('');
         $fileControls.find('img').prop('src', '');
+        files = [null, null, null, null];
     });
 }
 
