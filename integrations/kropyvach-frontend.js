@@ -5,31 +5,32 @@ var $SUBMIT = 'input[type="submit"]';
 var $LAST_FILE = '#upload_file4';
 var $ADD_FILE = '.add_image';
 
-(function () {
-    var addFile = document.querySelector($ADD_FILE);
-    addFile.click();
-    addFile.click();
-    addFile.click();
-})();
+Boardcast.querySelector($ADD_FILE).then(function (addFileElem) {
+    addFileElem.click();
+    addFileElem.click();
+    addFileElem.click();
+});
 
-Boardcast.getCaptcha = function (callback) {
-    callback();
+Boardcast.getCaptcha = function () {
+    return Promise.resolve();
 };
 
-Boardcast.refreshCaptcha = function (callback) {
-    callback();
+Boardcast.refreshCaptcha = function () {
+    return Promise.resolve();
 };
 
-Boardcast.setMessage = function (msg, callback) {
-    document.querySelector($MESSAGE).value = msg;
-    callback();
+Boardcast.setMessage = function (message) {
+    return Boardcast.querySelector($MESSAGE).then(function (messageElem) {
+        messageElem.value = message;
+    });
 };
 
-Boardcast.setCaptcha = function (captcha, callback) {
-    callback();
+Boardcast.setCaptcha = function (captcha) {
+    return Promise.resolve();
 };
 
-Boardcast.submit = function (callback) {
-    document.querySelector($SUBMIT).click();
-    callback();
+Boardcast.submit = function () {
+    return Boardcast.querySelector($SUBMIT).then(function (submitElem) {
+        submitElem.click();
+    });
 };

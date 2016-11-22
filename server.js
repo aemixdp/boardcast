@@ -143,6 +143,7 @@ app.post('/submit', upload.array('files'), guard(async (req, res) => {
         let page = await phantom.createPage();
         await page.setting('userAgent', random_ua.generate());
         if (await page.open(url) == 'fail') continue;
+        await page.injectJs('./integrations/es6-promise.auto.min.js');
         await page.injectJs('./integrations/common-frontend.js');
         await page.injectJs(`./integrations/${BoardName.fromUrl(url)}-frontend.js`);
         await integrations.common.setPageMessage(page, req.body.message);

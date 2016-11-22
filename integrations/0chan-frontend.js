@@ -5,52 +5,66 @@ var $CAPTCHA_STATUS = '.captcha_status';
 var $CAPTCHA_INPUT = 'input[name="captcha"]';
 var $MESSAGE = 'textarea[name="message"]';
 var $SUBMIT = 'input[type="submit"]';
+var $DISCLAIMER = '#disclaimer';
 
-Boardcast.ensureCaptchaVisible = function (callback) {
-    document.getElementById('disclaimer').style.display = 'none';
-    var img = document.querySelector($CAPTCHA);
-    var captchaAlive = !document.querySelector($CAPTCHA_STATUS).innerHTML.trim();
-    if (img.src && img.complete && captchaAlive) {
-        callback();
-    } else {
-        var onLoad = function () {
-            img.removeEventListener('load', onLoad);
-            callback();
-        };
-        img.addEventListener('load', onLoad);
-        document.querySelector($CAPTCHA_INPUT).click();
-    }
-};
-
-Boardcast.getCaptcha = function (callback) {
-    Boardcast.ensureCaptchaVisible(function () {
-        callback(document.querySelector($CAPTCHA));
+(function () {
+    Boardcast.querySelector($DISCLAIMER).then(function (disclaimerElem) {
+        disclaimerElem.style.display = 'none';
     });
-};
+})();
 
-Boardcast.refreshCaptcha = function (callback) {
-    Boardcast.ensureCaptchaVisible(function () {
-        var img = document.querySelector($CAPTCHA);
-        var observer = new MutationObserver(function () {
-            observer.disconnect();
-            Boardcast.ensureCaptchaVisible(callback);
+Boardcast.getCaptcha = function () {
+    return Promise.all([
+        Boardcast.querySelector($CAPTCHA),
+        Boardcast.querySelector($CAPTCHA_STATUS),
+        Boardcast.querySelector($CAPTCHA_INPUT)
+    ]).then(function (elems) {
+        var captchaImageElem = elems[0];
+        var captchaStatusElem = elems[1];
+        var captchaInputElem = elems[2];
+        return new Promise(function (resolve) {
+            var captchaAlive = !captchaStatusElem.innerHTML.trim();
+            if (captchaImageElem.src && captchaImageElem.complete && captchaAlive) {
+                resolve(captchaImageElem);
+            } else {
+                var onLoad = function () {
+                    captchaImageElem.removeEventListener('load', onLoad);
+                    resolve(captchaImageElem);
+                };
+                captchaImageElem.addEventListener('load', onLoad);
+                captchaInputElem.click();
+            }
         });
-        observer.observe(img, { attributes: true });
-        img.click();
     });
 };
 
-Boardcast.setMessage = function (msg, callback) {
-    document.querySelector($MESSAGE).value = msg;
-    callback();
+Boardcast.refreshCaptcha = function () {
+    return Boardcast.getCaptcha().then(function (captchaImageElem) {
+        return new Promise(function (resolve) {
+            var observer = new MutationObserver(function () {
+                observer.disconnect();
+                resolve(Boardcast.getCaptcha());
+            });
+            observer.observe(captchaImageElem, { attributes: true });
+            captchaImageElem.click();
+        });
+    });
 };
 
-Boardcast.setCaptcha = function (captcha, callback) {
-    document.querySelector($CAPTCHA_INPUT).value = captcha;
-    callback();
+Boardcast.setMessage = function (message) {
+    return Boardcast.querySelector($MESSAGE).then(function (messageElem) {
+        messageElem.value = message;
+    });
+};
+
+Boardcast.setCaptcha = function (captcha) {
+    return Boardcast.querySelector($CAPTCHA_INPUT).then(function (captchaInputElem) {
+        captchaInputElem.value = captcha;
+    });
 };
 
 Boardcast.submit = function (callback) {
-    document.querySelector($SUBMIT).click();
-    callback();
+    return Boardcast.querySelector($SUBMIT).then(function (submitElem) {
+        submitElem.click();
+    });
 };

@@ -1,7 +1,6 @@
 window.Boardcast = window.Boardcast || {};
 
 var $CAPTCHA = '.captcha-image > img';
-var $CAPTCHA_CONTAINER = '.captcha-image';
 var $CAPTCHA_INPUT = '#captcha-value';
 var $IMAGES_AREA = '#postform .images-area';
 var $MESSAGE = 'textarea[name="comment"]';
@@ -11,78 +10,103 @@ var $STATUS = '#ABU-alert';
 var $STATUS_CONTAINER = '#ABU-alertbox';
 
 (function () {
-    document.querySelector($IMAGES_AREA).style.display = 'none';
+    Boardcast.querySelector($IMAGES_AREA).then(function (imagesAreaElem) {
+        imagesAreaElem.style.display = 'none';
+    });
 })();
 
-Boardcast.ensureControlsVisible = function (callback) {
-    var img = document.querySelector($CAPTCHA);
-    if (img) {
-        callback();
-    } else {
-        document.querySelector($REPLY).click();
-        var handle = setInterval(function () {
-            var img = document.querySelector($CAPTCHA);
-            if (img) {
-                clearInterval(handle);
-                if (img.complete) {
-                    callback();
-                } else {
-                    var onLoad = function () {
-                        img.removeEventListener('load', onLoad);
-                        callback();
-                    };
-                    img.addEventListener('load', onLoad);
-                }
-            }
-        }, Boardcast.CAPTCHA_POLL_INTERVAL);
-    }
-};
-
-Boardcast.getCaptcha = function (callback) {
-    Boardcast.ensureControlsVisible(function () {
-        callback(document.querySelector($CAPTCHA));
+Boardcast.ensureControlsVisible = function () {
+    return new Promise(function (resolve, reject) {
+        var img = document.querySelector($CAPTCHA);
+        if (img) {
+            resolve();
+        } else {
+            Boardcast.querySelector($REPLY)
+                .catch(reject)
+                .then(function (replyElem) {
+                    replyElem.click();
+                    var handle = setInterval(function () {
+                        var img = document.querySelector($CAPTCHA);
+                        if (img) {
+                            clearInterval(handle);
+                            if (img.complete) {
+                                resolve();
+                            } else {
+                                var onLoad = function () {
+                                    img.removeEventListener('load', onLoad);
+                                    resolve();
+                                };
+                                img.addEventListener('load', onLoad);
+                            }
+                        }
+                    }, Boardcast.CAPTCHA_POLL_INTERVAL);
+                });
+        }
     });
 };
 
-Boardcast.refreshCaptcha = function (callback) {
-    Boardcast.ensureControlsVisible(function () {
-        var observer = new MutationObserver(function () {
-            observer.disconnect();
-            Boardcast.ensureControlsVisible(callback);
+Boardcast.getCaptcha = function () {
+    return Boardcast.ensureControlsVisible()
+        .then(Boardcast.querySelectorFn($CAPTCHA));
+};
+
+Boardcast.refreshCaptcha = function () {
+    return Boardcast.getCaptcha().then(function (captchaImageElem) {
+        return new Promise(function (resolve) {
+            var observer = new MutationObserver(function () {
+                observer.disconnect();
+                resolve(Boardcast.getCaptcha());
+            });
+            observer.observe(captchaImageElem.parentNode, { childList: true });
+            captchaImageElem.click();
         });
-        observer.observe(document.querySelector($CAPTCHA_CONTAINER), { childList: true });
-        document.querySelector($CAPTCHA).click();
     });
 };
 
-Boardcast.setMessage = function (msg, callback) {
-    Boardcast.ensureControlsVisible(function () {
-        document.querySelector($MESSAGE).value = msg;
-        callback();
-    });
-};
-
-Boardcast.setCaptcha = function (captcha, callback) {
-    Boardcast.ensureControlsVisible(function () {
-        document.querySelector($CAPTCHA_INPUT).value = captcha;
-        callback();
-    });
-};
-
-Boardcast.submit = function (callback) {
-    Boardcast.ensureControlsVisible(function () {
-        var observer = new MutationObserver(function () {
-            observer.disconnect();
-            var alertText = document.querySelector($STATUS).innerText.trim();
-            if (alertText.indexOf('успешно') != -1) {
-                callback();
-            } else if (alertText.indexOf('Капча невалидна') != -1) {
-                callback(Boardcast.error('WrongCaptchaError', alertText));
-            } else {
-                callback(Boardcast.error('SubmitError'));
-            }
+Boardcast.setMessage = function (message) {
+    return Boardcast.ensureControlsVisible()
+        .then(Boardcast.querySelectorFn($MESSAGE))
+        .then(function (messageElem) {
+            messageElem.value = message;
         });
-        observer.observe(document.querySelector($STATUS_CONTAINER), { childList: true });
-        document.querySelector($SUBMIT).click();
-    });
+};
+
+Boardcast.setCaptcha = function (captcha) {
+    return Boardcast.ensureControlsVisible()
+        .then(Boardcast.querySelectorFn($CAPTCHA_INPUT))
+        .then(function (captchaInputElem) {
+            captchaInputElem.value = captcha;
+        });
+};
+
+Boardcast.submit = function () {
+    return Boardcast.ensureControlsVisible()
+        .then(function () {
+            return Promise.all([
+                Boardcast.querySelector($STATUS_CONTAINER),
+                Boardcast.querySelector($SUBMIT)
+            ]);
+        }).then(function (elems) {
+            var statusContainerElem = elems[0];
+            var submitElem = elems[1];
+            return new Promise(function (resolve, reject) {
+                var observer = new MutationObserver(function () {
+                    observer.disconnect();
+                    Boardcast.querySelector($STATUS)
+                        .catch(reject)
+                        .then(function (statusElem) {
+                            var alertText = statusElem.innerText.trim();
+                            if (alertText.indexOf('успешно') != -1) {
+                                resolve();
+                            } else if (alertText.indexOf('Капча невалидна') != -1) {
+                                reject(Boardcast.error('WrongCaptchaError', alertText));
+                            } else {
+                                reject(Boardcast.error('SubmitError'));
+                            }
+                        });
+                });
+                observer.observe(statusContainerElem, { childList: true });
+                submitElem.click();
+            });
+        });
 };

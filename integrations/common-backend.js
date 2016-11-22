@@ -3,6 +3,7 @@ const exec = require('child_process').exec;
 const commandExists = require('command-exists');
 const ExtendableError = require('es6-error');
 
+class PageError extends ExtendableError {}
 class WrongCaptchaError extends ExtendableError {}
 class SubmitError extends ExtendableError {}
 
@@ -42,13 +43,14 @@ const evaluateWithPromise = (() => {
 })();
 
 module.exports = {
+    PageError,
     WrongCaptchaError,
     SubmitError,
 
     getPageCaptcha: async (page) => {
-        let placement = await evaluateWithPromise(page, `function (resolve) {
-            Boardcast.getCaptcha(function (captcha) {
-                resolve(captcha && Boardcast.placement(captcha));
+        let placement = await evaluateWithPromise(page, `function (resolve, reject) {
+            Boardcast.getCaptcha().catch(reject).then(function (captchaImageElem) {
+                resolve(captchaImageElem && Boardcast.placement(captchaImageElem));
             });
         }`);
         if (placement) {
@@ -61,23 +63,20 @@ module.exports = {
         }
     },
 
-    refreshPageCaptcha: (page) => evaluateWithPromise(page, `function (resolve) {
-        Boardcast.refreshCaptcha(resolve);
+    refreshPageCaptcha: (page) => evaluateWithPromise(page, `function (resolve, reject) {
+        Boardcast.refreshCaptcha().catch(reject).then(resolve);
     }`),
 
-    setPageMessage: (page, msg) => evaluateWithPromise(page, `function (resolve) {
-        Boardcast.setMessage(${JSON.stringify(msg)}, resolve);
+    setPageMessage: (page, msg) => evaluateWithPromise(page, `function (resolve, reject) {
+        Boardcast.setMessage(${JSON.stringify(msg)}).catch(reject).then(resolve);
     }`),
 
-    setPageCaptcha: (page, captcha) => evaluateWithPromise(page, `function (resolve) {
-        Boardcast.setCaptcha('${captcha}', resolve);
+    setPageCaptcha: (page, captcha) => evaluateWithPromise(page, `function (resolve, reject) {
+        Boardcast.setCaptcha('${captcha}').catch(reject).then(resolve);
     }`),
 
     submitPage: (page) => evaluateWithPromise(page, `function (resolve, reject) {
-        Boardcast.submit(function (err) {
-            if (err) reject(err);
-            else resolve();
-        });
+        Boardcast.submit().catch(reject).then(resolve);
     }`),
 
     concatImagesUploader: (selector, ext = 'png') => (page, files) => new Promise((resolve, reject) => {
